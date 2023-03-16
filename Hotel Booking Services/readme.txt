@@ -77,7 +77,8 @@ The following is the functions are implemented.
 
 		The value of each array meets the constraints stated herein.
 
-		You cannot book a room that is already booked from the check-in date to the check-out date. Howeve it is possible for another customer to check in on the check-out date. Among the rooms that match the filter options, book the cheapest room. When the price is the same, choose the room whose ID value is the smallest.
+		You cannot book a room that is already booked from the check-in date to the check-out date. Howeve it is possible for another customer to check in on the check-out 
+		date. Among the rooms that match the filter options, book the cheapest room. When the price is the same, choose the room whose ID value is the smallest.
 
 		This function returns the ID value of a room that is booked.
 
