@@ -20,7 +20,7 @@ int n;
 void initalize(int N, int mRoomCnt[]) {
 
 int n = N;
-	for (register int i 1; i < N; ++i) 
+	for (register int i=1; i < N; ++i) 
 		roomList[i].clear();
 
 	for (register int i=1; i < 11; ++i) 
@@ -49,11 +49,11 @@ void addRoom (int mHotel ID, int mRoomID, int mRoomInfo[])
 
 int findRoom (int mFilter[])
 {
-	int check_in mFilter[0]; 
+	int check_in = mFilter[0]; 
 	int check_out = mFilter [1];
 	int ret = -1;
 
-	for (auto x price [mFilter [2]] [mFilter [3]] [mFilter [4]] [mFilter [5]])
+	for (auto x : price [mFilter [2]][mFilter [3]][mFilter [4]][mFilter [5]])
 	{
 		int id = x.second;
 		auto y = date[id].lower_bound({ check_in,0 });
@@ -82,12 +82,12 @@ int riseCosts (int mHotelID, int mRise)
 {
 	int sum = 0;
 
-	for (auto x roomList[mHotelID])
+	for (auto x : roomList[mHotelID])
 	{
 		price[obj[x].region][obj[x].beds][obj [x].room_t][obj[x].view_t].erase({ obj[x].price,x }); 
 		obj[x].price += (obj[x].price / mRise); 
 		sum += obj[x].price;
-		price[obj[x].region][obj[x]. beds][obj [x].room_t][obj [x].view_t].insert({ obj[x].price,x });
+		price[obj[x].region][obj[x].beds][obj[x].room_t][obj[x].view_t].insert({ obj[x].price,x });
 	}
 
 	return sum;
