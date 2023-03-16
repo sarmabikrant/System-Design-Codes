@@ -1,0 +1,94 @@
+#include<iostream>
+#include<unordered_map>
+#include<set>
+#include<vector>
+
+using namespace std;
+
+struct Node
+{
+int region, beds, room_t, view_t, price, roomID; 
+}obj [100005];
+
+set<pair<int, int >> price [11][11][5][5];
+
+set<pair<int, int>> date [100005];
+vector<int> roomList[1005];
+
+int n;
+
+void initalize(int N, int mRoomCnt[]) {
+
+int n = N;
+	for (register int i 1; i < N; ++i) 
+		roomList[i].clear();
+
+	for (register int i=1; i < 11; ++i) 
+		for (register int j=2; j < 11; ++j) 
+			for (register int k=1; k <= 4; ++k) 
+				for (register int l=1; l <= 4; ++l)
+					price[i][j][k][l].clear();
+
+}
+
+void addRoom (int mHotel ID, int mRoomID, int mRoomInfo[])
+{
+
+	obj [mRoomID].region = mRoomInfo[0];
+	obj [mRoomID].beds = mRoomInfo[1];
+	obj [mRoomID].room_t = mRoomInfo[2]; 
+	obj [mRoomID].view_t = mRoomInfo [3];
+	obj [mRoomID].price = mRoomInfo[4];
+
+	roomList[mHotelID].push_back(mRoomID);
+
+	price[mRoomInfo[0]][mRoomInfo[1]][mRoomInfo[2]][mRoomInfo[3]].insert({ mRoomInfo[4], mRoomID });
+	date[mRoomID].clear();
+
+}
+
+int findRoom (int mFilter[])
+{
+	int check_in mFilter[0]; 
+	int check_out = mFilter [1];
+	int ret = -1;
+
+	for (auto x price [mFilter [2]] [mFilter [3]] [mFilter [4]] [mFilter [5]])
+	{
+		int id = x.second;
+		auto y = date[id].lower_bound({ check_in,0 });
+
+		if (y != date[id].end() and y->first < check_out)
+			continue;
+
+		if (y != date[id].begin())
+		{
+			--y;
+			if(y->second > check_in) 
+			continue;
+		}
+		ret = id; 
+		break;
+	}
+	
+	if (ret != -1) 
+		date[ret].insert({ check_in, check_out });
+
+		return ret;
+
+}
+
+int riseCosts (int mHotelID, int mRise)
+{
+	int sum = 0;
+
+	for (auto x roomList[mHotelID])
+	{
+		price[obj[x].region][obj[x].beds][obj [x].room_t][obj[x].view_t].erase({ obj[x].price,x }); 
+		obj[x].price += (obj[x].price / mRise); 
+		sum += obj[x].price;
+		price[obj[x].region][obj[x]. beds][obj [x].room_t][obj [x].view_t].insert({ obj[x].price,x });
+	}
+
+	return sum;
+}
