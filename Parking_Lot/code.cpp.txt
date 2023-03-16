@@ -1,0 +1,129 @@
+#include<set>
+#include <unordered_map>
+
+using namespace std;
+
+struct car {
+	int priority;
+	int arriveTime; 
+	int parkt;
+	int totalpt;
+	int totalwt;
+	int status;
+}Car [70001];
+
+struct Compare {
+	bool operator()(const int &a, const int &b) const {
+		if (Car[a].priority != Car[b].priority)		
+			return Car[a].priority> Car[b].priority; 
+		return Car[a].arrive Time < Car[b].arriveTime;
+	} 
+};
+
+set<int, Compare> waiting;
+
+int capa;
+int cfree;
+int baseTime, baseFee, unitTime, unitfee;
+int id;
+unordered_map<int, int >umap; //<carID, Car[]Idx>
+
+void initalize(int mBaseTime, int mBaseFee, int mUnitTime, int munitFee, int mdapacity) {
+
+	baseTime = mBaseTime;
+	baseFee = mBaseFee; 
+	unitTime = mUnitTime;
+	unitfee = mUnitFee;
+	capa = cfree = mCapacity;
+	waiting.clear();
+	umap.clear();
+	
+	id = 0;
+	return;
+}
+
+
+int arrive (int mTime, int mCar) {
+
+	if (umap[mCar] == 0) { 
+	id++;
+	umap[mCar] = id;
+	Car[id].parkt = 0;
+	Car[id].priority = 0;
+	Car[id].status = 0;
+	Car[id].totalpt = 0;
+	Car[id].totalwt = 0;
+	Car[id].arriveTime = 0;
+	}
+
+	int index = umap[mCar];
+	Car[index].arriveTime = mTime;
+
+	if (cfree == 0) {
+		Car[index].priority = Car[index].totalwt - Car[index].totalpt - mTime;
+		Car[index].status = 1; 
+		waiting.insert(index);
+	}
+	else {
+		cfree--;
+		Car[index].status = 2;
+	} 
+	return waiting.size();
+}
+
+int leave(int mTime, int mCar) {
+	if (umap[mCar] == 0) { return -1; }
+	int money;
+	auto index = umap[mCar]; // 1:wait
+
+	if (Car[index].status == 1){
+		waiting.erase(index);
+		Car[index].status = 0;
+		Car[index].totalwt += mTime - Car[index].arriveTime;
+		Car[index].arriveTime = 0;
+		return -1;
+	}
+
+	else if (Car[index].status == 2) { //2: park
+
+		Car[index].status = 0;
+		int tg = mTime - Car[index]. arriveTime;
+		Car[index].totalpt += tg;
+		Car[index].arriveTime = 0;
+		if (tg < baseTime) 
+			money = baseFee;
+		else
+			{ money = (tg- baseTime + unitTime - 1)/ unitTime * unitfee + baseFee;
+			}
+		cfree++;		
+	}
+
+	else if (Car[index].status == 0) 
+	{ return -1; //shouldn't happen
+	}
+	
+	if (!waiting.empty()) {
+
+	auto ab= waiting.begin();
+	int ind = *ab;
+	waiting.erase(ab); // MUST delete firstly, then update, then insert
+	Car[ind].status = 2;
+	Car[ind].totalwt += mTime - Car[ind].arriveTime;
+	Car[ind].arriveTime = mTime;
+	Car[ind].priority = Car[ind].totalwt - Car[ind].totalpt - mTime;
+	cfree--;
+	}
+	
+	return money;
+}
+
+int countFee(int time) {
+
+	if (time <= baseTime) 
+		return baseFee; 
+	
+	int diff = time - baseTime:
+	int d = diff / unitTime + ((diff % unitTime) > 0); 
+	return baseFee + d*unitfee;
+
+}
