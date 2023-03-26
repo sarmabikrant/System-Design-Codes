@@ -1,0 +1,171 @@
+	#include<bits/stdc++.h> 
+	using namespace std;
+
+	#define MAX_PRODUCTS 601
+	#define MAX_ORDERS 30001
+
+	struct PurchaseRecord
+
+	int buyID, price,pdx;
+	int orig_qty, cur_qty;
+	};
+
+	struct SellRecord
+	{
+	int count,prod_idx; 
+	list<pair<PurchaseRecord*, int>> order_list;
+	};
+	
+	
+	struct CompareOrder {
+
+	bool operator() (const PurchaseRecord* a, const PurchaseRecord* b) const {
+
+		if (a->price == b->price) 
+			return a->buy ID > b->buy ID;
+
+		return a->price > b->price;
+
+		}
+
+	};
+
+	PurchaseRecord buyOrders[MAX_ORDERS]; 
+	unordered_map<int, int> buy ID2bidx;
+	unordered_map<int, int> prodID2pidx;
+	unordered_map<int, SellRecord> sell_memo;
+	int bidx,pidx;
+
+	struct Product 
+	{
+		int total_qty;
+		priority_queue<PurchaseRecord*,vector<PurchaseRecord*>, CompareOrder> inventory;
+
+	}products[MAX_PRODUCTS];
+
+	void init() {
+
+		buyID2bidx.clear(); 
+		prodID2pidx.clear(); 
+		sell_memo.clear();
+
+		for (int i=0;i<pidx+1; ++i) 
+			while (!products[i].inventory.empty()) 
+				products[i].inventory.pop();
+
+		bidx=pidx=-1;
+	}
+
+
+	int buy (int bid, int mProduct, int mPrice, int mQuantity) {
+
+		if(!prodID2pidx.count(mProduct))
+		{
+			prodID2pidx[mProduct] = ++pidx;
+			products[pidx].total_qty=0;
+		}
+
+		int pdx = prodID2pidx[mProduct]; 
+		buyID2bidx[bId] = ++bidx; 
+		buyOrders[bidx] = {bId, mPrice, pdx, mQuantity, mQuantity};
+		products[pdx].inventory.push(&buyOrders[bidx]);
+		products[pdx].total_qty+=mQuantity;
+		return products[pdx].total_qty;
+
+	}
+
+	int cancel(int bId) {
+
+		if(!buyID2bidx.count(bId)) 
+			return -1;
+
+		int bdx = buyID2bidx[bId];
+
+		if (buyOrders[bdx].cur_qty < buyOrders[bdx].orig_qty)
+			return -1;
+
+		int pdx=buyOrders[bdx].pdx; 
+		products[pdx].total_qty-=buyOrders[bdx].cur_qty;
+		buyOrders[bdx].cur_qty=0;
+		buyID2bidx.erase(bId);
+		return products [pdx].total_qty;
+	}
+
+	int sell (int sId, int mProduct, int mPrice, int mQuantity) {
+
+
+		if(!prodID2pidx.count(mProduct))
+			return -1;
+
+		int profit=0,pdx=prodID2pidx[mProduct];
+
+
+		if(products[pdx].total_qty<mQuantity)
+			return -1;
+
+
+		products[pdx].total_qty-=mQuantity; 
+		SellRecord &sr=sell_memo[sId];
+		sr.prod_idx=pdx;
+		sr.count=mQuantity;
+
+
+		while(mQuantity && !products[pdx].inventory.empty())
+		{ 
+			PurchaseRecord *order = products[pdx].inventory.top();
+
+			if(0==order->cur_qty)
+			{
+				products [pdx].inventory.pop();
+				continue;
+			}
+
+			if(mQuantity<order->cur_qty) {
+				order->cur_qty-=mQuantity;
+				sr.order_list.push_back({order, mQuantity}); 
+				profit+=((mPrice - order->price)*mQuantity); 
+				mQuantity=0;
+			}
+			else
+			{
+				profit+=((mPrice order->price)*order->cur_qty);
+				mQuantity = mQuantity - order->cur_qty;
+				sr.order_list.push_back({order, order->cur_qty});
+				order->cur_qty=0;
+				products[pdx].inventory.pop();
+			}
+
+		}
+
+		return profit;
+	}
+
+	int refund(int sId) {
+
+
+		if(!sell_memo.count(sId)) 
+			return -1;
+
+
+		SellRecord &sr = sell_memo[sId];
+		int res=sr.count; 
+		products[sr.prod_idx].total_qty+=res;
+
+		for(auto itr:sr.order_list)
+		{
+
+		PurchaseRecord *order=itr.first;
+
+		if(order->cur_qty==0)
+			products[sr.prod_idx].inventory.push(order);
+			
+		order->cur_qty+=itr.second;
+		
+		}
+
+		sell_memo.erase(sId);
+		return res;
+
+	}
+
+
